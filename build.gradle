@@ -21,12 +21,10 @@ bintray {
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/dpolivaev/mnemonicsetter.git'
 		version {
-                name = '0.1-Alpha'
+                name = '0.2-Alpha'
 		}
     }
 }
-
-
 
 task sourceJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -44,7 +42,7 @@ publishing {
             from components.java
             groupId 'org.dpolivaev.mnemonicsetter'
             artifactId 'mnemonicsetter'
-            version '0.1'
+            version '0.2'
 			artifact sourceJar {
                 classifier "sources"
             }
