@@ -1,14 +1,20 @@
 plugins {
     id "com.jfrog.bintray" version "1.6"
 }
+repositories {
+    jcenter()
+}
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-repositories {
-    jcenter()
-}
+targetCompatibility='1.7'
+sourceCompatibility='1.7'
+
+group 'org.dpolivaev.mnemonicsetter'
+version='0.3'
+
 
 bintray {
     user = System.getenv('BINTRAY_USER')
@@ -21,7 +27,7 @@ bintray {
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/dpolivaev/mnemonicsetter.git'
 		version {
-                name = '0.2-Alpha'
+                name = project.version
 		}
     }
 }
@@ -40,9 +46,7 @@ publishing {
     publications {
         mnemonicsetter(MavenPublication) {
             from components.java
-            groupId 'org.dpolivaev.mnemonicsetter'
             artifactId 'mnemonicsetter'
-            version '0.2'
 			artifact sourceJar {
                 classifier "sources"
             }
