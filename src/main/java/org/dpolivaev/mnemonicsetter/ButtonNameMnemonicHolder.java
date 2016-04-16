@@ -19,7 +19,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractButton;
 
-class ButtonNameMnemonicHolder implements INameMnemonicHolder {
+public class ButtonNameMnemonicHolder implements INameMnemonicHolder {
 	final private AbstractButton btn;
 
 	public ButtonNameMnemonicHolder(final AbstractButton btn) {

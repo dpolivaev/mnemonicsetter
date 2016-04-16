@@ -15,7 +15,7 @@
  */
 package org.dpolivaev.mnemonicsetter;
 
-interface INameMnemonicHolder {
+public interface INameMnemonicHolder {
 	String getText();
 
 	void setDisplayedMnemonicIndex(int mnemoSignIndex);
