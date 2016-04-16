@@ -17,7 +17,7 @@ package org.dpolivaev.mnemonicsetter;
 
 import javax.swing.JMenuItem;
 
-public class MenuItemMnemonicHolder extends ButtonNameMnemonicHolder {
+class MenuItemMnemonicHolder extends ButtonNameMnemonicHolder {
 
 	final private JMenuItem menuItem;
 

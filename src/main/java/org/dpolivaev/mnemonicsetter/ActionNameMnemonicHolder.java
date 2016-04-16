@@ -19,7 +19,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
 
-public class ActionNameMnemonicHolder implements INameMnemonicHolder {
+class ActionNameMnemonicHolder implements INameMnemonicHolder {
 	final private Action action;
 
 	public ActionNameMnemonicHolder(final Action action) {
