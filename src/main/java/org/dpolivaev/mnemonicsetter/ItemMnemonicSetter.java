@@ -127,10 +127,15 @@ class ItemMnemonicSetter {
 	public static ItemMnemonicSetter of(List<INameMnemonicHolder> mnemonicHolders) {
 		final ArrayList<INameMnemonicHolder> validHolders = new ArrayList<INameMnemonicHolder>(mnemonicHolders.size());
 		for(INameMnemonicHolder holder :mnemonicHolders)
-			if(CAN_HAVE_MNEMONICS.matcher(holder.getText()).find())
+			if(canHaveMnemonics(holder))
 				validHolders.add(holder);
 		final INameMnemonicHolder[] array = validHolders.toArray(new INameMnemonicHolder[validHolders.size()]);
 		return new ItemMnemonicSetter(array);
+	}
+
+	private static boolean canHaveMnemonics(INameMnemonicHolder holder) {
+		final String text = holder.getText();
+		return text != null && CAN_HAVE_MNEMONICS.matcher(text).find();
 	}
 }
 
