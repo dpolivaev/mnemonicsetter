@@ -4,10 +4,10 @@
 Use it just like `MnemonicSetter.INSTANCE.setComponentMnemonics(menubar, toolbar)`.
 All items belonging to given elements are given different mnemonic letters if possible.
 
-You can also attach it to a popup menu as a PopupMenuListener 
+You can also attach `MnemonicSetter.INSTANCE` to a popup menu as a PopupMenuListener 
 so that mnemonics are automatically calculated when the popup menu becomes visible.
 
-##Maven
+### Maven configuration
 ```
 <repository>
 	<snapshots>
@@ -27,7 +27,7 @@ so that mnemonics are automatically calculated when the popup menu becomes visib
 </dependency>
 ```
 
-##Gradle
+### Gradle configuration
 ```
 repositories {
 		maven { url "http://dl.bintray.com/freeplane/freeplane" }
