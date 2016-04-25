@@ -18,6 +18,8 @@ package org.dpolivaev.mnemonicsetter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,23 +27,49 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 class ItemMnemonicSetter {
+	final static private Pattern CAN_HAVE_MNEMONICS = Pattern.compile("\\p{L}");
 	private final INameMnemonicHolder[] mnemonicHolders;
+	private Collection<Integer> blockedMnemonics;
+	
+	static ItemMnemonicSetter of(INameMnemonicHolder... mnemonicHolders) {
+		return of(Arrays.asList(mnemonicHolders));
+	}
+	
+	static ItemMnemonicSetter of(List<INameMnemonicHolder> mnemonicHolders) {
+		final ArrayList<INameMnemonicHolder> validHolders = new ArrayList<INameMnemonicHolder>(mnemonicHolders.size());
+		for(INameMnemonicHolder holder :mnemonicHolders)
+			if(canHaveMnemonics(holder))
+				validHolders.add(holder);
+		final INameMnemonicHolder[] array = validHolders.toArray(new INameMnemonicHolder[validHolders.size()]);
+		return new ItemMnemonicSetter(array);
+	}
+
+	private static boolean canHaveMnemonics(INameMnemonicHolder holder) {
+		final String text = holder.getText();
+		return text != null && CAN_HAVE_MNEMONICS.matcher(text).find();
+	}
+
 
 	private ItemMnemonicSetter(INameMnemonicHolder[] mnemonicHolders) {
 		this.mnemonicHolders = mnemonicHolders;
+		blockedMnemonics = Collections.emptyList();
+
 	}
 
 	public void setMnemonics() {
 		final Map<Integer, INameMnemonicHolder> usedMnemonics = extractUsedMnemonics(mnemonicHolders);
-		if(usedMnemonics.size() < mnemonicHolders.length) {
+		if(usedMnemonics.size() - blockedMnemonics.size() < mnemonicHolders.length) {
 			final Map<Integer, INameMnemonicHolder> mnemonicSet = findMnemonics(usedMnemonics, 0, 0);
 			setMnemonics(mnemonicSet);
 		}
 	}
 
 	private void setMnemonics(final Map<Integer, INameMnemonicHolder> setMnemonics) {
-		for(Map.Entry<Integer, INameMnemonicHolder> holderMnemonic : setMnemonics.entrySet())
-			holderMnemonic.getValue().setMnemonic(holderMnemonic.getKey());
+		for(Map.Entry<Integer, INameMnemonicHolder> holderMnemonic : setMnemonics.entrySet()) {
+			final INameMnemonicHolder target = holderMnemonic.getValue();
+			if(target != null)
+				target.setMnemonic(holderMnemonic.getKey());
+		}
 	}
 
 	private Map<Integer, INameMnemonicHolder> findMnemonics(final Map<Integer, INameMnemonicHolder> usedMnemonics, int holderIndex, int characterIndex) {
@@ -77,6 +105,8 @@ class ItemMnemonicSetter {
 	}
 	private Map<Integer, INameMnemonicHolder> extractUsedMnemonics(INameMnemonicHolder... mnemonicHolders) {
 		final Map<Integer, INameMnemonicHolder> usedMnemonics = new MnemonicMap();
+		for(Integer blockedMnemonic : blockedMnemonics)
+			usedMnemonics.put(blockedMnemonic, null);
 		for(INameMnemonicHolder holder : mnemonicHolders){
 			final Integer mnemonic = holder.getMnemonic();
 			if(mnemonic != 0) {
@@ -118,24 +148,9 @@ class ItemMnemonicSetter {
 		return usedMnemonics;
 	}
 
-	final static private Pattern CAN_HAVE_MNEMONICS = Pattern.compile("\\p{L}");
-	
-	public static ItemMnemonicSetter of(INameMnemonicHolder... mnemonicHolders) {
-		return of(Arrays.asList(mnemonicHolders));
-	}
-	
-	public static ItemMnemonicSetter of(List<INameMnemonicHolder> mnemonicHolders) {
-		final ArrayList<INameMnemonicHolder> validHolders = new ArrayList<INameMnemonicHolder>(mnemonicHolders.size());
-		for(INameMnemonicHolder holder :mnemonicHolders)
-			if(canHaveMnemonics(holder))
-				validHolders.add(holder);
-		final INameMnemonicHolder[] array = validHolders.toArray(new INameMnemonicHolder[validHolders.size()]);
-		return new ItemMnemonicSetter(array);
-	}
-
-	private static boolean canHaveMnemonics(INameMnemonicHolder holder) {
-		final String text = holder.getText();
-		return text != null && CAN_HAVE_MNEMONICS.matcher(text).find();
+	public ItemMnemonicSetter notUsing(Collection<Integer> blockedMnemonics) {
+		this.blockedMnemonics = blockedMnemonics;
+		return this;
 	}
 }
 

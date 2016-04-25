@@ -18,6 +18,7 @@ package org.dpolivaev.mnemonicsetter;
 import static org.junit.Assert.assertThat;
 
 import java.awt.event.KeyEvent;
+import java.util.Collections;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -112,6 +113,12 @@ public class ItemMnemonicSetterShould {
 		assertMnemonic(mnemonicHolderAB, 'B');
 	}
 
+	@Test
+	public void assignsSecondLetter_IfFirstLetterIsAlreadyUsed() throws Exception {
+		final MnemonicHolder mnemonicHolderAB = new MnemonicHolder("AB");
+		ItemMnemonicSetter.of(mnemonicHolderAB).notUsing(Collections.singleton(KeyEvent.VK_A)).setMnemonics();
+		assertMnemonic(mnemonicHolderAB, 'B');
+	}
 
 	@Test
 	public void assignsSecondLetter_IfFirstLetterLowerCaseIsAlreadyAssigned() throws Exception {
