@@ -28,22 +28,17 @@ import javax.swing.JMenuItem;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.dpolivaev.mnemonicsetter.ButtonNameMnemonicHolder;
-import org.dpolivaev.mnemonicsetter.INameMnemonicHolder;
-import org.dpolivaev.mnemonicsetter.MenuItemMnemonicHolder;
-import org.dpolivaev.mnemonicsetter.ItemMnemonicSetter;
-
 /**
  * Automatically assigns mnemonics to menu items and toolbar elements.
- * 
+ *
  * Use it just like MnemonicSetter.INSTANCE.setComponentMnemonics(menubar, toolbar).
- * You can also attach it to a popup menu as a PopupMenuListener 
+ * You can also attach it to a popup menu as a PopupMenuListener
  * so that mnemonics are automatically calculated when the popup menu becomes visible.
  */
 public class MnemonicSetter implements PopupMenuListener{
 	final static private boolean IS_MAC_OS = System.getProperty("os.name").startsWith("Mac OS");
 	final static public MnemonicSetter INSTANCE = new MnemonicSetter();
-	
+
 
 	@Override
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -56,29 +51,54 @@ public class MnemonicSetter implements PopupMenuListener{
 			return; // Mac OS generally does not support mnemonics
 		int componentCount = 0;
 		for(Container container : containers) {
-			componentCount += container.getComponentCount();
+			componentCount += countComponents(container);
 		}
 		final Collection<Integer> keyCodesUsedInMenus = new HashSet<>();
 		final ArrayList<INameMnemonicHolder> mnemonicHolders = new ArrayList<INameMnemonicHolder>(componentCount);
 		for(Container container : containers) {
-			if(container instanceof JMenuBar) {
-				final Collection<Integer> keyCodesUsedInMenu = UsedAltAcceleratorsFinder.INSTANCE.findUsedKeyCodes((JMenuBar) container);
-				keyCodesUsedInMenus.addAll(keyCodesUsedInMenu);
-			}
-				
-			final Component[] components = container.getComponents();
-			for(Component component :components)
-				if(component instanceof JMenuItem) {
-					final JMenuItem item = (JMenuItem) component;
-					mnemonicHolders.add(new MenuItemMnemonicHolder(item));
-				}
-				else if(component instanceof AbstractButton) {
-					final AbstractButton button = (AbstractButton) component;
-					mnemonicHolders.add(new ButtonNameMnemonicHolder(button));
-				}
+			addComponents(container, keyCodesUsedInMenus, mnemonicHolders);
 		}
 		final ItemMnemonicSetter mnemonicSetter = ItemMnemonicSetter.of(mnemonicHolders).notUsing(keyCodesUsedInMenus);
 		mnemonicSetter.setMnemonics();
+	}
+
+	private void addComponents(Container container, final Collection<Integer> keyCodesUsedInMenus,
+							   final ArrayList<INameMnemonicHolder> mnemonicHolders) {
+		if(container instanceof JMenuBar) {
+			final Collection<Integer> keyCodesUsedInMenu = UsedAltAcceleratorsFinder.INSTANCE.findUsedKeyCodes((JMenuBar) container);
+			keyCodesUsedInMenus.addAll(keyCodesUsedInMenu);
+		}
+
+		final Component[] components = container.getComponents();
+		for(Component component :components)
+			if(component instanceof JMenuItem) {
+				final JMenuItem item = (JMenuItem) component;
+				mnemonicHolders.add(new MenuItemMnemonicHolder(item));
+			}
+			else if(component instanceof AbstractButton) {
+				final AbstractButton button = (AbstractButton) component;
+				mnemonicHolders.add(new ButtonNameMnemonicHolder(button));
+			}
+			else if(component instanceof Container) {
+				addComponents((Container) component, keyCodesUsedInMenus, mnemonicHolders);
+			}
+	}
+
+	private int countComponents(Container container) {
+		if(container instanceof JMenuBar) {
+			return container.getComponentCount();
+		}
+		int count = 0;
+		final Component[] components = container.getComponents();
+		for(Component component :components) {
+			if(component instanceof JMenuItem || component instanceof AbstractButton) {
+				count++;
+			}
+			else if(component instanceof Container) {
+				count += countComponents((Container) component);
+			}
+		}
+		return count;
 	}
 
 	@Override
